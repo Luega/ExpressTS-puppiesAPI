@@ -16,7 +16,7 @@ app.use(express.urlencoded());
 
 app.get("/api/puppies", (_req: Request, res: Response) => {
   const puppies = getAllPuppies();
-  if (puppies) {
+  if (puppies.length > 0) {
     return res.status(200).json(puppies);
   }
   return res.status(200).json("No puppies found");
@@ -38,7 +38,7 @@ app.post(
     body("breed")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the breed")
-      .custom((value: string) => !/[\d\W]/.test(value))
+      .custom((value: string) => /^[a-zA-Z\s]*$/.test(value))
       .withMessage("Digits and special characters are not allowed in the breed")
       .isString()
       .withMessage("Breed must to be a string")
@@ -50,7 +50,7 @@ app.post(
     body("name")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the name")
-      .custom((value: string) => !/[\d\W]/.test(value))
+      .custom((value: string) => /^[a-zA-Z\s]*$/.test(value))
       .withMessage("Digits and special characters are not allowed in the name")
       .isString()
       .withMessage("Name must to be a string")
@@ -95,7 +95,7 @@ app.put(
     body("breed")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the breed")
-      .custom((value: string) => !/[\d\W]/.test(value))
+      .custom((value: string) => /^[a-zA-Z\s]*$/.test(value))
       .withMessage("Digits and special characters are not allowed in the breed")
       .isString()
       .withMessage("Breed must to be a string")
@@ -106,7 +106,7 @@ app.put(
     body("name")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the name")
-      .custom((value: string) => !/[\d\W]/.test(value))
+      .custom((value: string) => /^[a-zA-Z\s]*$/.test(value))
       .withMessage("Digits and special characters are not allowed in the name")
       .isString()
       .withMessage("Name must to be a string")
