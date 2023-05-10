@@ -1,4 +1,5 @@
 import express, { Express, Request, Response } from "express";
+import { body, validationResult } from "express-validator";
 
 import {
   Puppy,
@@ -31,46 +32,121 @@ app.get("/api/puppies/:id", (req: Request, res: Response) => {
   return res.status(200).json("Puppy not found");
 });
 
-app.post("/api/puppies", (req: Request, res: Response) => {
-  if (req.body.breed && req.body.name && req.body.birthDate) {
-    if (
-      typeof req.body.breed !== "string" ||
-      typeof req.body.name !== "string" ||
-      typeof req.body.name !== "string"
-    ) {
-      return res
-        .status(400)
-        .json("Wrong type of data was sent. String type is required.");
+app.post(
+  "/api/puppies",
+  [
+    body("breed")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in the breed")
+      .custom((value: string) => !/[\d\W]/.test(value))
+      .withMessage("Digits and special characters are not allowed in the breed")
+      .isString()
+      .withMessage("Breed must to be a string")
+      .exists()
+      .withMessage("Breed is required")
+      .notEmpty()
+      .withMessage("Breed must include at least one character")
+      .trim(),
+    body("name")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in the name")
+      .custom((value: string) => !/[\d\W]/.test(value))
+      .withMessage("Digits and special characters are not allowed in the name")
+      .isString()
+      .withMessage("Name must to be a string")
+      .exists()
+      .withMessage("Name is required")
+      .notEmpty()
+      .withMessage("Name must include at least one character")
+      .trim(),
+    body("birthDate")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in the birthDate")
+      .custom((value: string) =>
+        /^(?:2[0-9]{3})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$$/.test(
+          value
+        )
+      )
+      .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
+      .isString()
+      .withMessage("BirthDate must to be a string")
+      .exists()
+      .withMessage("Name is required")
+      .notEmpty()
+      .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
+      .trim(),
+  ],
+  (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(400).json({ errors: validationErrors.array() });
     }
+
     const reqNewPuppy: Puppy = req.body;
     const createdPuppy = createPuppy(reqNewPuppy);
+
     return res.status(201).json(createdPuppy);
   }
+);
 
-  return res
-    .status(400)
-    .json("To creat a puppy we need to know breed, name, birthDate.");
-});
+app.put(
+  "/api/puppies/:id",
+  [
+    body("breed")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in the breed")
+      .custom((value: string) => !/[\d\W]/.test(value))
+      .withMessage("Digits and special characters are not allowed in the breed")
+      .isString()
+      .withMessage("Breed must to be a string")
+      .notEmpty()
+      .withMessage("Breed must include at least one character")
+      .trim()
+      .optional(),
+    body("name")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in the name")
+      .custom((value: string) => !/[\d\W]/.test(value))
+      .withMessage("Digits and special characters are not allowed in the name")
+      .isString()
+      .withMessage("Name must to be a string")
+      .notEmpty()
+      .withMessage("Name must include at least one character")
+      .trim()
+      .optional(),
+    body("birthDate")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in the birthDate")
+      .custom((value: string) =>
+        /^(?:2[0-9]{3})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$$/.test(
+          value
+        )
+      )
+      .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
+      .isString()
+      .withMessage("BirthDate must to be a string")
+      .notEmpty()
+      .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
+      .trim()
+      .optional(),
+  ],
+  (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(400).json({ errors: validationErrors.array() });
+    }
 
-app.put("/api/puppies/:id", (req: Request, res: Response) => {
-  if (
-    typeof req.body.breed !== "string" ||
-    typeof req.body.name !== "string" ||
-    typeof req.body.name !== "string"
-  ) {
-    return res
-      .status(400)
-      .json("Wrong type of data was sent. String type is required.");
+    const reqPuppyId = req.params.id;
+    const puppy = getPuppy(reqPuppyId!);
+    if (puppy) {
+      const updatedPuppy = updatePuppy(req.body, puppy);
+
+      return res.status(200).json(updatedPuppy);
+    }
+
+    return res.status(200).json("Puppy not found");
   }
-  const reqPuppyId = req.params.id;
-  const puppy = getPuppy(reqPuppyId!);
-  if (puppy) {
-    const updatedPuppy = updatePuppy(req.body, puppy);
-    return res.status(200).json(updatedPuppy);
-  }
-
-  return res.status(200).json("Puppy not found");
-});
+);
 
 app.delete("/api/puppies/:id", (req: Request, res: Response) => {
   const reqPuppyId = req.params.id;
