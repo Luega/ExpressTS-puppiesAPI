@@ -85,11 +85,11 @@ export const updatePuppy = (updateReq: UpdateReq, puppy: Puppy) => {
 export const deletePuppy = (puppyId: string) => {
   const index: number = DB.findIndex((puppy) => puppy.id === puppyId);
   if (index === -1) {
-    return `No puppies found with id: ${puppyId}`;
+    return false;
   }
   DB.splice(index, 1);
 
-  return `Puppies with id:${puppyId} deleted`;
+  return true;
 };
 
 export default DB;

@@ -33,6 +33,15 @@ app.get("/api/puppies/:id", (req: Request, res: Response) => {
 
 app.post("/api/puppies", (req: Request, res: Response) => {
   if (req.body.breed && req.body.name && req.body.birthDate) {
+    if (
+      typeof req.body.breed !== "string" ||
+      typeof req.body.name !== "string" ||
+      typeof req.body.name !== "string"
+    ) {
+      return res
+        .status(400)
+        .json("Wrong type of data was sent. String type is required.");
+    }
     const reqNewPuppy: Puppy = req.body;
     const createdPuppy = createPuppy(reqNewPuppy);
     return res.status(201).json(createdPuppy);
@@ -44,20 +53,33 @@ app.post("/api/puppies", (req: Request, res: Response) => {
 });
 
 app.put("/api/puppies/:id", (req: Request, res: Response) => {
+  if (
+    typeof req.body.breed !== "string" ||
+    typeof req.body.name !== "string" ||
+    typeof req.body.name !== "string"
+  ) {
+    return res
+      .status(400)
+      .json("Wrong type of data was sent. String type is required.");
+  }
   const reqPuppyId = req.params.id;
   const puppy = getPuppy(reqPuppyId!);
   if (puppy) {
     const updatedPuppy = updatePuppy(req.body, puppy);
-    return res.status(201).json(updatedPuppy);
+    return res.status(200).json(updatedPuppy);
   }
 
-  return res.status(400).json("Puppy not found");
+  return res.status(200).json("Puppy not found");
 });
 
 app.delete("/api/puppies/:id", (req: Request, res: Response) => {
   const reqPuppyId = req.params.id;
-  const deleted: string = deletePuppy(reqPuppyId!);
-  return res.status(200).json(deleted);
+  const deleted: boolean = deletePuppy(reqPuppyId!);
+  if (deleted === true) {
+    return res.status(200).json("Puppy deleted");
+  }
+
+  return res.status(200).json("Puppy not found");
 });
 
 export default app;
