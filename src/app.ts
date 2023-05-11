@@ -1,3 +1,4 @@
+require("dotenv").config();
 import express, { Express, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { Puppy } from "./types";
@@ -88,7 +89,12 @@ app.post(
     const reqNewPuppy: Puppy = req.body;
     const createdPuppy = await createPuppy(reqNewPuppy);
 
-    return res.status(201).json(createdPuppy);
+    return res
+      .status(201)
+      .location(
+        `http://localhost:${process.env.PORT}/api/puppies/${createdPuppy.slug}`
+      )
+      .json(createdPuppy);
   }
 );
 
@@ -147,7 +153,12 @@ app.put(
     if (puppy) {
       const updatedPuppy = await updatePuppy(req.body, puppy);
 
-      return res.status(200).json(updatedPuppy);
+      return res
+        .status(200)
+        .location(
+          `http://localhost:${process.env.PORT}/api/puppies/${updatedPuppy.slug}`
+        )
+        .json(updatedPuppy);
     }
 
     return res.status(200).json("Puppy not found");
