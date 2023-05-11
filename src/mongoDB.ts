@@ -7,7 +7,7 @@ export const mongoClient: typeof MongoClient = new MongoClient(
   `${process.env.CONNECTION_STRING_MONGODB}`
 );
 
-const createSlug = (breed: string, name: string) => {
+export const createSlug = (breed: string, name: string) => {
   let slug: string = `${breed.toLowerCase()}-${name.toLowerCase()}`;
   slug = slug.replace(/\s+/g, "-");
   const uniqueId = uuidv4();
@@ -15,6 +15,130 @@ const createSlug = (breed: string, name: string) => {
 
   return slug;
 };
+
+// START - SEEDER - DELETE THIS SECTION IF YOU WANT TO WORK WITH YOUR DATA
+const puppies: Puppy[] = [
+  {
+    breed: "Labrador Retriever",
+    name: "Max",
+    birthDate: "2023-07-15",
+  },
+  {
+    breed: "Golden Retriever",
+    name: "Bella",
+    birthDate: "2023-06-10",
+  },
+  {
+    breed: "French Bulldog",
+    name: "Charlie",
+    birthDate: "2023-07-02",
+  },
+  {
+    breed: "Poodle",
+    name: "Lucy",
+    birthDate: "2023-05-20",
+  },
+  {
+    breed: "Siberian Husky",
+    name: "Rocky",
+    birthDate: "2023-06-05",
+  },
+  {
+    breed: "Beagle",
+    name: "Lola",
+    birthDate: "2023-07-01",
+  },
+  {
+    breed: "Boxer",
+    name: "Duke",
+    birthDate: "2023-06-17",
+  },
+  {
+    breed: "Bulldog",
+    name: "Molly",
+    birthDate: "2023-05-25",
+  },
+  {
+    breed: "Pomeranian",
+    name: "Teddy",
+    birthDate: "2023-06-20",
+  },
+  {
+    breed: "Rottweiler",
+    name: "Coco",
+    birthDate: "2023-06-12",
+  },
+  {
+    breed: "Yorkshire Terrier",
+    name: "Bentley",
+    birthDate: "2023-05-30",
+  },
+  {
+    breed: "Chihuahua",
+    name: "Milo",
+    birthDate: "2023-07-10",
+  },
+  {
+    breed: "Dachshund",
+    name: "Sophie",
+    birthDate: "2023-06-15",
+  },
+  {
+    breed: "Great Dane",
+    name: "Luna",
+    birthDate: "2023-05-22",
+  },
+  {
+    breed: "Bull Terrier",
+    name: "Oscar",
+    birthDate: "2023-07-05",
+  },
+  {
+    breed: "Border Collie",
+    name: "Rosie",
+    birthDate: "2023-06-25",
+  },
+  {
+    breed: "Pug",
+    name: "Bailey",
+    birthDate: "2023-07-07",
+  },
+  {
+    breed: "Shih Tzu",
+    name: "Toby",
+    birthDate: "2023-06-08",
+  },
+  {
+    breed: "Australian Shepherd",
+    name: "Mia",
+    birthDate: "2023-05-18",
+  },
+  {
+    breed: "Cavalier King Charles Spaniel",
+    name: "Cooper",
+    birthDate: "2023-07-03",
+  },
+];
+
+const puppiesSeeder: Puppy[] = puppies.map((puppy) => ({
+  slug: createSlug(puppy.breed, puppy.name),
+  ...puppy,
+}));
+
+const uploadSeederData = async (seeder: Puppy[]) => {
+  await mongoClient
+    .db(`${process.env.MONGODB_DB}`)
+    .collection(`${process.env.MONGODB_COLLECTION}`)
+    .deleteMany({});
+
+  await mongoClient
+    .db(`${process.env.MONGODB_DB}`)
+    .collection(`${process.env.MONGODB_COLLECTION}`)
+    .insertMany(seeder);
+};
+
+uploadSeederData(puppiesSeeder);
+// END - SEEDER
 
 export const getAllPuppies = async (): Promise<Puppy[]> => {
   const puppies: Puppy[] = await mongoClient
