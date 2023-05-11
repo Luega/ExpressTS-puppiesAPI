@@ -1,30 +1,30 @@
 import express, { Express, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { Puppy } from "./types";
 
 import {
-  Puppy,
   getAllPuppies,
   getPuppy,
-  deletePuppy,
   createPuppy,
   updatePuppy,
-} from "./DB";
+  deletePuppy,
+} from "./mongoDB";
 
 const app: Express = express();
 app.use(express.json());
 app.use(express.urlencoded());
 
-app.get("/api/puppies", (_req: Request, res: Response) => {
-  const puppies = getAllPuppies();
+app.get("/api/puppies", async (_req: Request, res: Response) => {
+  const puppies = await getAllPuppies();
   if (puppies.length > 0) {
     return res.status(200).json(puppies);
   }
   return res.status(200).json("No puppies found");
 });
 
-app.get("/api/puppies/:id", (req: Request, res: Response) => {
-  const reqPuppyId = req.params.id;
-  const puppy = getPuppy(reqPuppyId!);
+app.get("/api/puppies/:slug", async (req: Request, res: Response) => {
+  const reqPuppySlug = req.params.slug;
+  const puppy = await getPuppy(reqPuppySlug!);
   if (puppy) {
     return res.status(200).json(puppy);
   }
@@ -46,7 +46,8 @@ app.post(
       .withMessage("Breed is required")
       .notEmpty()
       .withMessage("Breed must include at least one character")
-      .trim(),
+      .trim()
+      .escape(),
     body("name")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the name")
@@ -58,7 +59,8 @@ app.post(
       .withMessage("Name is required")
       .notEmpty()
       .withMessage("Name must include at least one character")
-      .trim(),
+      .trim()
+      .escape(),
     body("birthDate")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the birthDate")
@@ -74,23 +76,24 @@ app.post(
       .withMessage("Name is required")
       .notEmpty()
       .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
-      .trim(),
+      .trim()
+      .escape(),
   ],
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
       return res.status(400).json({ errors: validationErrors.array() });
     }
 
     const reqNewPuppy: Puppy = req.body;
-    const createdPuppy = createPuppy(reqNewPuppy);
+    const createdPuppy = await createPuppy(reqNewPuppy);
 
     return res.status(201).json(createdPuppy);
   }
 );
 
 app.put(
-  "/api/puppies/:id",
+  "/api/puppies/:slug",
   [
     body("breed")
       .custom((value: string) => !/^\s*$/.test(value))
@@ -102,7 +105,8 @@ app.put(
       .notEmpty()
       .withMessage("Breed must include at least one character")
       .trim()
-      .optional(),
+      .optional()
+      .escape(),
     body("name")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the name")
@@ -113,7 +117,8 @@ app.put(
       .notEmpty()
       .withMessage("Name must include at least one character")
       .trim()
-      .optional(),
+      .optional()
+      .escape(),
     body("birthDate")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the birthDate")
@@ -128,18 +133,19 @@ app.put(
       .notEmpty()
       .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
       .trim()
-      .optional(),
+      .optional()
+      .escape(),
   ],
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
       return res.status(400).json({ errors: validationErrors.array() });
     }
 
-    const reqPuppyId = req.params.id;
-    const puppy = getPuppy(reqPuppyId!);
+    const reqPuppySlug = req.params.slug;
+    const puppy = await getPuppy(reqPuppySlug!);
     if (puppy) {
-      const updatedPuppy = updatePuppy(req.body, puppy);
+      const updatedPuppy = await updatePuppy(req.body, puppy);
 
       return res.status(200).json(updatedPuppy);
     }
@@ -148,14 +154,18 @@ app.put(
   }
 );
 
-app.delete("/api/puppies/:id", (req: Request, res: Response) => {
-  const reqPuppyId = req.params.id;
-  const deleted: boolean = deletePuppy(reqPuppyId!);
+app.delete("/api/puppies/:slug", async (req: Request, res: Response) => {
+  const reqPuppySlug = req.params.slug;
+  const deleted: boolean = await deletePuppy(reqPuppySlug!);
   if (deleted === true) {
     return res.status(200).json("Puppy deleted");
   }
 
   return res.status(200).json("Puppy not found");
+});
+
+app.get("*", function (_req: Request, res: Response) {
+  return res.status(404).json("ERROR 404 - NOT FOUND");
 });
 
 export default app;

@@ -1,9 +1,9 @@
 import request from "supertest";
 import app from "./app";
-import { Puppy } from "./DB";
+import { Puppy } from "./types";
 
 describe("Puppies API", () => {
-  let createdPuppyId: Puppy;
+  let createdPuppySlug: Puppy;
 
   beforeAll(async () => {
     const newPuppy = {
@@ -12,7 +12,7 @@ describe("Puppies API", () => {
       birthDate: "2022-01-01",
     };
     const response = await request(app).post("/api/puppies").send(newPuppy);
-    createdPuppyId = response.body.id;
+    createdPuppySlug = response.body.slug;
   });
 
   describe("GET /api/puppies", () => {
@@ -23,22 +23,24 @@ describe("Puppies API", () => {
     });
 
     it('should return "No puppies found" if there are no puppies', async () => {
-      jest.spyOn(require("./DB"), "getAllPuppies").mockReturnValue([]);
+      jest.spyOn(require("./mongoDB"), "getAllPuppies").mockReturnValue([]);
       const response = await request(app).get("/api/puppies");
       expect(response.status).toBe(200);
       expect(response.body).toBe("No puppies found");
     });
   });
 
-  describe("GET /api/puppies/:id", () => {
+  describe("GET /api/puppies/:slug", () => {
     it("should return a specific puppy", async () => {
-      const response = await request(app).get(`/api/puppies/${createdPuppyId}`);
+      const response = await request(app).get(
+        `/api/puppies/${createdPuppySlug}`
+      );
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
     });
 
     it('should return "Puppy not found" if the puppy does not exist', async () => {
-      jest.spyOn(require("./DB"), "getPuppy").mockReturnValue(undefined);
+      jest.spyOn(require("./mongoDB"), "getPuppy").mockReturnValue(undefined);
       const response = await request(app).get("/api/puppies/999");
       expect(response.status).toBe(200);
       expect(response.body).toBe("Puppy not found");
@@ -67,18 +69,18 @@ describe("Puppies API", () => {
     });
   });
 
-  describe("PUT /api/puppies/:id", () => {
+  describe("PUT /api/puppies/:slug", () => {
     it("should update an existing puppy", async () => {
       const updatedPuppy = { breed: "Labrador Retriever" };
       const response = await request(app)
-        .put(`/api/puppies/${createdPuppyId}`)
+        .put(`/api/puppies/${createdPuppySlug}`)
         .send(updatedPuppy);
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
     });
 
     it('should return "Puppy not found" if the puppy does not exist', async () => {
-      jest.spyOn(require("./DB"), "getPuppy").mockReturnValue(undefined);
+      jest.spyOn(require("./mongoDB"), "getPuppy").mockReturnValue(undefined);
       const updatedPuppy = { breed: "Labrador Retriever" };
       const response = await request(app)
         .put("/api/puppies/999")
@@ -97,10 +99,10 @@ describe("Puppies API", () => {
     });
   });
 
-  describe("DELETE /api/puppies/:id", () => {
+  describe("DELETE /api/puppies/:slug", () => {
     it("should delete an existing puppy", async () => {
       const response = await request(app).delete(
-        `/api/puppies/${createdPuppyId}`
+        `/api/puppies/${createdPuppySlug}`
       );
       expect(response.status).toBe(200);
       expect(response.body).toBe("Puppy deleted");
