@@ -52,9 +52,7 @@ npm run dev
 2. After installing and starting the server, you can make HTTP requests to the API endpoints using a tool like curl or a REST client like Postman.
 
 3. The API is equipped with a simple seeder that includes pre-defined dog puppies data. This seeder allows for a quick and effortless initial usage of the API. Upon starting the API, the seeder will populate the MongoDB database with the provided dog puppies data, ensuring there is sample data available for testing and exploration.
-
 However, if you prefer to use the API with your own data, you have the flexibility to remove the seeder section from the mongoDB.ts file. By removing this section, the seeder functionality will be disabled, and the API will not populate the database with the predefined dog puppies data.
-
 This allows you to have full control over the data stored in the database, enabling you to customize and manage the content according to your specific needs and requirements.
 
 ## Endpoints
