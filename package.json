@@ -31,6 +31,7 @@
     "@types/uuid": "^9.0.1",
     "babel-jest": "^29.5.0",
     "concurrently": "^8.0.1",
+    "cors": "^2.8.5",
     "express-validator": "^7.0.1",
     "nodemon": "^2.0.22",
     "supertest": "^6.3.3",
