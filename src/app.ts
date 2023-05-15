@@ -14,8 +14,8 @@ import {
 
 const app: Express = express();
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb" }));
 
 app.get("/api/puppies", async (_req: Request, res: Response) => {
   const puppies = await getAllPuppies();
@@ -38,6 +38,13 @@ app.get("/api/puppies/:slug", async (req: Request, res: Response) => {
 app.post(
   "/api/puppies",
   [
+    body("image")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in the image")
+      .isString()
+      .withMessage("Image must to be a string")
+      .optional()
+      .escape(),
     body("breed")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the breed")
@@ -81,6 +88,19 @@ app.post(
       .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
       .trim()
       .escape(),
+    body("info")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in info")
+      .custom((value: string) => !/^[^a-zA-Z0-9\s]+$/.test(value))
+      .withMessage("Only special characters are not allowed in info")
+      .custom((value: string) => !/^[0-9]+$/.test(value))
+      .withMessage("Only digits are not allowed in info")
+      .isString()
+      .withMessage("Info must to be a string")
+      .isLength({ min: 5, max: 255 })
+      .withMessage("Info length must be min 5 and max 255 characters")
+      .optional()
+      .escape(),
   ],
   async (req: Request, res: Response) => {
     const validationErrors = validationResult(req);
@@ -103,6 +123,13 @@ app.post(
 app.put(
   "/api/puppies/:slug",
   [
+    body("image")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in the image")
+      .isString()
+      .withMessage("Image must to be a string")
+      .optional()
+      .escape(),
     body("breed")
       .custom((value: string) => !/^\s*$/.test(value))
       .withMessage("Only spaces are not allowed in the breed")
@@ -141,6 +168,19 @@ app.put(
       .notEmpty()
       .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
       .trim()
+      .optional()
+      .escape(),
+    body("info")
+      .custom((value: string) => !/^\s*$/.test(value))
+      .withMessage("Only spaces are not allowed in info")
+      .custom((value: string) => !/^[^a-zA-Z0-9\s]+$/.test(value))
+      .withMessage("Only special characters are not allowed in info")
+      .custom((value: string) => !/^[0-9]+$/.test(value))
+      .withMessage("Only digits are not allowed in info")
+      .isString()
+      .withMessage("Info must to be a string")
+      .isLength({ min: 5, max: 255 })
+      .withMessage("Info length must be min 5 and max 255 characters")
       .optional()
       .escape(),
   ],

@@ -162,9 +162,11 @@ export const getPuppy = async (puppySlug: string): Promise<Puppy> => {
 export const createPuppy = async (puppy: Puppy): Promise<Puppy> => {
   const newPuppy: Puppy = {
     slug: createSlug(puppy.breed, puppy.name),
+    image: puppy.image,
     breed: puppy.breed,
     name: puppy.name,
     birthDate: puppy.birthDate,
+    info: puppy.info,
   };
   await mongoClient
     .db(`${process.env.MONGODB_DB}`)
@@ -191,11 +193,13 @@ export const updatePuppy = async (
       {
         $set: {
           slug: newSlug,
+          image: updateReq.image ? updateReq.image : puppy.image,
           breed: updateReq.breed ? updateReq.breed : puppy.breed,
           name: updateReq.name ? updateReq.name : puppy.name,
           birthDate: updateReq.birthDate
             ? updateReq.birthDate
             : puppy.birthDate,
+          info: updateReq.info ? updateReq.info : puppy.info,
         },
       }
     );
