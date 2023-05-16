@@ -43,7 +43,7 @@ app.post(
       .withMessage("Only spaces are not allowed in the image")
       .isString()
       .withMessage("Image must to be a string")
-      .optional()
+      .optional({ nullable: true })
       .escape(),
     body("breed")
       .custom((value: string) => !/^\s*$/.test(value))
@@ -89,7 +89,7 @@ app.post(
       .trim()
       .escape(),
     body("info")
-      .custom((value: string) => !/^\s*$/.test(value))
+      .custom((value: string) => !/\s+/.test(value))
       .withMessage("Only spaces are not allowed in info")
       .custom((value: string) => !/^[^a-zA-Z0-9\s]+$/.test(value))
       .withMessage("Only special characters are not allowed in info")
@@ -97,9 +97,9 @@ app.post(
       .withMessage("Only digits are not allowed in info")
       .isString()
       .withMessage("Info must to be a string")
-      .isLength({ min: 5, max: 255 })
-      .withMessage("Info length must be min 5 and max 255 characters")
-      .optional()
+      .isLength({ max: 255 })
+      .withMessage("Info length must be max 255 characters")
+      .optional({ nullable: true })
       .escape(),
   ],
   async (req: Request, res: Response) => {
@@ -128,7 +128,7 @@ app.put(
       .withMessage("Only spaces are not allowed in the image")
       .isString()
       .withMessage("Image must to be a string")
-      .optional()
+      .optional({ nullable: true })
       .escape(),
     body("breed")
       .custom((value: string) => !/^\s*$/.test(value))
@@ -171,7 +171,7 @@ app.put(
       .optional()
       .escape(),
     body("info")
-      .custom((value: string) => !/^\s*$/.test(value))
+      .custom((value: string) => !/^\s+$/.test(value))
       .withMessage("Only spaces are not allowed in info")
       .custom((value: string) => !/^[^a-zA-Z0-9\s]+$/.test(value))
       .withMessage("Only special characters are not allowed in info")
@@ -179,9 +179,9 @@ app.put(
       .withMessage("Only digits are not allowed in info")
       .isString()
       .withMessage("Info must to be a string")
-      .isLength({ min: 5, max: 255 })
-      .withMessage("Info length must be min 5 and max 255 characters")
-      .optional()
+      .isLength({ max: 255 })
+      .withMessage("Info length must be max 255 characters")
+      .optional({ nullable: true })
       .escape(),
   ],
   async (req: Request, res: Response) => {

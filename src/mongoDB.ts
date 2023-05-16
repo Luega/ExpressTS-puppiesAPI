@@ -122,6 +122,8 @@ const puppies: Puppy[] = [
 
 const puppiesSeeder: Puppy[] = puppies.map((puppy) => ({
   slug: createSlug(puppy.breed, puppy.name),
+  image: null,
+  info: null,
   ...puppy,
 }));
 
@@ -162,11 +164,11 @@ export const getPuppy = async (puppySlug: string): Promise<Puppy> => {
 export const createPuppy = async (puppy: Puppy): Promise<Puppy> => {
   const newPuppy: Puppy = {
     slug: createSlug(puppy.breed, puppy.name),
-    image: puppy.image,
+    image: puppy.image ? puppy.image : null,
     breed: puppy.breed,
     name: puppy.name,
     birthDate: puppy.birthDate,
-    info: puppy.info,
+    info: puppy.info ? puppy.info : null,
   };
   await mongoClient
     .db(`${process.env.MONGODB_DB}`)
@@ -185,6 +187,21 @@ export const updatePuppy = async (
     updateReq.breed ? updateReq.breed : puppy.breed,
     updateReq.name ? updateReq.name : puppy.name
   );
+
+  if (!updateReq.info) {
+    if (updateReq.info?.length === 0) {
+      updateReq = {
+        ...updateReq,
+        info: null,
+      };
+    } else {
+      updateReq = {
+        ...updateReq,
+        info: puppy.info,
+      };
+    }
+  }
+
   await mongoClient
     .db(`${process.env.MONGODB_DB}`)
     .collection(`${process.env.MONGODB_COLLECTION}`)
@@ -199,7 +216,7 @@ export const updatePuppy = async (
           birthDate: updateReq.birthDate
             ? updateReq.birthDate
             : puppy.birthDate,
-          info: updateReq.info ? updateReq.info : puppy.info,
+          info: updateReq.info,
         },
       }
     );
