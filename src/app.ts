@@ -83,7 +83,7 @@ app.post(
       .isString()
       .withMessage("BirthDate must to be a string")
       .exists()
-      .withMessage("Name is required")
+      .withMessage("BirthDate is required")
       .notEmpty()
       .withMessage("BirthDate must be written in this format YYYY-MM-DD.")
       .trim()
