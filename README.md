@@ -4,13 +4,13 @@ A RESTful API for managing puppies data. This project is built using Express, No
 
 ## Table of Contents
 
-- [Installation](https://github.com/Luega/FirstTryThree.js/blob/main/README.md#installation)
-- [Usage](https://github.com/Luega/FirstTryThree.js/blob/main/README.md#usage)
-- [Endpoints](https://github.com/Luega/FirstTryThree.js/blob/main/README.md#endpoints)
-- [Technologies](https://github.com/Luega/FirstTryThree.js/blob/main/README.md#technologies)
-- [Validation](https://github.com/Luega/FirstTryThree.js/blob/main/README.md#validation)
-- [Testing](https://github.com/Luega/FirstTryThree.js/blob/main/README.md#testing)
-- [License](https://github.com/Luega/FirstTryThree.js/blob/main/README.md#license)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Endpoints](#endpoints)
+- [Technologies](#technologies)
+- [Validation](#validation)
+- [Testing](#testing)
+- [License](#license)
 
 ## Installation
 
